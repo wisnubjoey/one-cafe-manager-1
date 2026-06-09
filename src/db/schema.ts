@@ -1,6 +1,7 @@
 import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
 export * from "@/lib/auth-schema";
+export * from "./absen";
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
