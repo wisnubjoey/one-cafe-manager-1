@@ -4,12 +4,13 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
   Coffee,
+  CalendarCheck,
   File,
-  Gauge,
   GearSix,
   House,
   SignOut,
   SquaresFour,
+  Users,
 } from "@phosphor-icons/react"
 
 import { authClient } from "@/lib/auth-client"
@@ -32,6 +33,16 @@ const navigationItems = [
     title: "Dashboard",
     url: "/admin/dashboard",
     icon: House,
+  },
+  {
+    title: "Absen",
+    url: "/admin/absen",
+    icon: CalendarCheck,
+  },
+  {
+    title: "Member",
+    url: "/admin/member",
+    icon: Users,
   },
   {
     title: "Settings",
