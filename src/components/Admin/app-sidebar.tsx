@@ -9,6 +9,7 @@ import {
   File,
   GearSix,
   House,
+  Receipt,
   SignOut,
   SquaresFour,
   Users,
@@ -49,6 +50,11 @@ const navigationItems = [
     title: "Member",
     url: "/admin/member",
     icon: Users,
+  },
+  {
+    title: "Purchase Invoice",
+    url: "/admin/purchase-invoice",
+    icon: Receipt,
   },
   {
     title: "Settings",
