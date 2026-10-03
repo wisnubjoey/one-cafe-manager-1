@@ -47,6 +47,7 @@ export default async function AbsenPage() {
         idJadwal: jadwalTable.idJadwal,
         tanggal: jadwalTable.tanggal,
         statusKehadiran: jadwalTable.statusKehadiran,
+        approvalStatus: jadwalTable.approvalStatus,
         catatan: jadwalTable.catatan,
         employeeName: karyawanTable.name,
         roleName: roleTable.namaRole,
@@ -79,6 +80,7 @@ export default async function AbsenPage() {
     shift: item.shiftName ?? "Unknown shift",
     time: formatShiftTime(item.jamMulai, item.jamSelesai),
     status: item.statusKehadiran,
+    approvalStatus: item.approvalStatus ?? "Pending",
     catatan: item.catatan,
   }))
 

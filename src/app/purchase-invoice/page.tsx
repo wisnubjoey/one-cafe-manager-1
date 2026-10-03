@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm"
 import { db } from "@/db/client"
 import { purchaseInvoiceTable } from "@/db/schema"
-import { PurchaseInvoiceCalendar } from "@/components/Admin/purchase-invoice-calendar"
+import { PurchaseInvoiceCalendar } from "@/components/purchase-invoice-calendar"
 
 export const dynamic = "force-dynamic"
 
@@ -15,7 +15,7 @@ function formatDbDate(value: string | Date) {
   return `${year}-${month}-${day}`
 }
 
-export default async function AdminPurchaseInvoicePage() {
+export default async function MemberPurchaseInvoicePage() {
   const invoices = await db
     .select({
       id: purchaseInvoiceTable.id,

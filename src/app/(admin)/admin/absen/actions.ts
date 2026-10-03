@@ -187,3 +187,18 @@ export async function deleteSchedule(formData: FormData) {
 
   revalidatePath("/admin/absen")
 }
+
+export async function approveDaySchedules(formData: FormData) {
+  const tanggal = getRequiredString(formData, "tanggal")
+
+  await db
+    .update(jadwalTable)
+    .set({ 
+      approvalStatus: "Approved",
+      statusKehadiran: "Hadir",
+    })
+    .where(eq(jadwalTable.tanggal, tanggal))
+
+  revalidatePath("/admin/absen")
+  revalidatePath("/admin/scheduled-absen")
+}

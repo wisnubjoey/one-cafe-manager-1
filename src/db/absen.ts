@@ -17,6 +17,12 @@ export const statusKehadiranEnum = pgEnum("status_kehadiran", [
   "Alfa",
 ]);
 
+export const approvalStatusEnum = pgEnum("approval_status", [
+  "Pending",
+  "Approved",
+  "Changed",
+]);
+
 export const roleTable = pgTable("tb_role", {
   idRole: integer("id_role").primaryKey().generatedAlwaysAsIdentity(),
   namaRole: varchar("nama_role", { length: 255 }).notNull(),
@@ -30,6 +36,7 @@ export const karyawanTable = pgTable("tb_karyawan", {
     .notNull()
     .references(() => roleTable.idRole),
   status: boolean("status").default(true).notNull(),
+  description: text("description"),
 });
 
 export const shiftTable = pgTable("tb_shift", {
@@ -50,6 +57,9 @@ export const jadwalTable = pgTable("tb_jadwal", {
     .references(() => shiftTable.idShift),
   statusKehadiran: statusKehadiranEnum("status_kehadiran")
     .default("Belum Hadir")
+    .notNull(),
+  approvalStatus: approvalStatusEnum("approval_status")
+    .default("Pending")
     .notNull(),
   catatan: text("catatan"),
 });
