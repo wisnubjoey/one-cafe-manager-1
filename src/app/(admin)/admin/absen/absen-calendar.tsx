@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import {
   CalendarBlank,
   CaretLeft,
@@ -9,15 +10,15 @@ import {
   Plus,
   Trash,
   Users,
-  X,
+  CheckCircle,
 } from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
-import { createSchedule, deleteSchedule } from "./actions"
+import { deleteSchedule, approveDaySchedules } from "./actions"
 
 type AttendanceStatus = "Belum Hadir" | "Hadir" | "Sakit" | "Izin" | "Alfa"
+type ApprovalStatus = "Pending" | "Approved" | "Changed"
 
 export type CalendarEvent = {
   id: number
@@ -27,6 +28,7 @@ export type CalendarEvent = {
   shift: string
   time: string
   status: AttendanceStatus
+  approvalStatus: ApprovalStatus
   catatan: string | null
 }
 
@@ -42,47 +44,6 @@ type AbsenCalendarProps = {
 }
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-
-const attendanceStatuses: AttendanceStatus[] = [
-  "Belum Hadir",
-  "Hadir",
-  "Sakit",
-  "Izin",
-  "Alfa",
-]
-
-const shiftTemplates = [
-  {
-    value: "template:Pagi",
-    label: "Pagi",
-    startTime: "08:00",
-    endTime: "16:00",
-  },
-  {
-    value: "template:Middle",
-    label: "Middle",
-    startTime: "11:00",
-    endTime: "19:00",
-  },
-  {
-    value: "template:Malam",
-    label: "Malam",
-    startTime: "16:00",
-    endTime: "00:00",
-  },
-  {
-    value: "template:Libur",
-    label: "Libur",
-    startTime: "",
-    endTime: "",
-  },
-  {
-    value: "template:Lembur",
-    label: "Lembur",
-    startTime: "16:00",
-    endTime: "22:00",
-  },
-]
 
 function formatDateKey(date: Date) {
   const year = date.getFullYear()
@@ -132,12 +93,6 @@ export function AbsenCalendar({
     () => new Date(today.getFullYear(), today.getMonth(), 1)
   )
   const [selectedDate, setSelectedDate] = useState(() => formatDateKey(today))
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedShiftOption, setSelectedShiftOption] = useState(
-    shiftTemplates[0].value
-  )
-  const [startTime, setStartTime] = useState(shiftTemplates[0].startTime)
-  const [endTime, setEndTime] = useState(shiftTemplates[0].endTime)
 
   const calendarDays = useMemo(
     () => getCalendarDays(visibleMonth),
@@ -160,6 +115,9 @@ export function AbsenCalendar({
   )
 
   const selectedEvents = events.filter((event) => event.date === selectedDate)
+  const hasPendingInSelected = selectedEvents.length > 0 && selectedEvents.some(e => e.approvalStatus !== "Approved")
+  const isSelectedAllApproved = selectedEvents.length > 0 && selectedEvents.every(e => e.approvalStatus === "Approved")
+
   const visibleMonthEvents = events.filter((event) => {
     const eventDate = new Date(`${event.date}T00:00:00`)
 
@@ -168,18 +126,6 @@ export function AbsenCalendar({
       eventDate.getFullYear() === visibleMonth.getFullYear()
     )
   })
-  const canCreateSchedule = karyawan.length > 0
-  const selectedTemplate = shiftTemplates.find(
-    (template) => template.value === selectedShiftOption
-  )
-
-  const updateSelectedShift = (shiftOption: string) => {
-    const template = shiftTemplates.find((item) => item.value === shiftOption)
-
-    setSelectedShiftOption(shiftOption)
-    setStartTime(template?.startTime ?? "")
-    setEndTime(template?.endTime ?? "")
-  }
 
   const moveMonth = (direction: number) => {
     setVisibleMonth((current) => {
@@ -218,9 +164,11 @@ export function AbsenCalendar({
             <Button variant="outline" onClick={goToToday}>
               Today
             </Button>
-            <Button onClick={() => setIsDialogOpen(true)}>
-              <Plus />
-              Add Schedule
+            <Button asChild>
+              <Link href="/admin/scheduled-absen/create">
+                <Plus />
+                Create Scheduled Absen
+              </Link>
             </Button>
           </div>
         </div>
@@ -247,6 +195,16 @@ export function AbsenCalendar({
                   date.getMonth() === visibleMonth.getMonth()
                 const isSelected = dateKey === selectedDate
                 const isToday = dateKey === formatDateKey(today)
+                const hasPending = dayEvents.length > 0 && dayEvents.some(e => e.approvalStatus !== "Approved")
+                const isAllApproved = dayEvents.length > 0 && dayEvents.every(e => e.approvalStatus === "Approved")
+
+                let bgClasses = isSelected ? "bg-muted" : "bg-background"
+                
+                if (hasPending) {
+                  bgClasses = isSelected ? "bg-amber-200/80 ring-2 ring-amber-400" : "bg-amber-100/70 hover:bg-amber-100"
+                } else if (isAllApproved) {
+                  bgClasses = isSelected ? "bg-emerald-200/80 ring-2 ring-emerald-400" : "bg-emerald-100/70 hover:bg-emerald-100"
+                }
 
                 return (
                   <button
@@ -255,7 +213,7 @@ export function AbsenCalendar({
                     onClick={() => setSelectedDate(dateKey)}
                     className={[
                       "min-h-32 border-r border-b p-2 text-left transition-colors last:border-r-0 hover:bg-muted/50",
-                      isSelected ? "bg-muted" : "bg-background",
+                      bgClasses,
                       isCurrentMonth
                         ? "text-foreground"
                         : "text-muted-foreground/50",
@@ -264,7 +222,7 @@ export function AbsenCalendar({
                     <div className="mb-2 flex items-center justify-between">
                       <span
                         className={[
-                          "flex size-6 items-center justify-center text-xs font-medium",
+                          "flex size-6 items-center justify-center text-xs font-medium rounded-full",
                           isToday
                             ? "bg-primary text-primary-foreground"
                             : "text-inherit",
@@ -273,7 +231,7 @@ export function AbsenCalendar({
                         {date.getDate()}
                       </span>
                       {dayEvents.length > 0 ? (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[10px] font-medium text-muted-foreground">
                           {dayEvents.length} event
                         </span>
                       ) : null}
@@ -282,7 +240,7 @@ export function AbsenCalendar({
                       {dayEvents.slice(0, 3).map((event) => (
                         <div
                           key={event.id}
-                          className={`truncate border px-1.5 py-1 text-[11px] ${getStatusClass(
+                          className={`truncate border px-1.5 py-1 text-[11px] font-medium ${getStatusClass(
                             event.status
                           )}`}
                         >
@@ -290,7 +248,7 @@ export function AbsenCalendar({
                         </div>
                       ))}
                       {dayEvents.length > 3 ? (
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-[11px] font-medium text-muted-foreground">
                           +{dayEvents.length - 3} more
                         </div>
                       ) : null}
@@ -313,6 +271,27 @@ export function AbsenCalendar({
                 <CalendarBlank className="size-5 text-muted-foreground" />
               </div>
 
+              {hasPendingInSelected && (
+                <form action={approveDaySchedules} className="mb-4">
+                  <input type="hidden" name="tanggal" value={selectedDate} />
+                  <Button
+                    type="submit"
+                    className="w-full font-semibold shadow-xs hover:opacity-90 transition-opacity cursor-pointer"
+                    style={{ backgroundColor: "#059669", color: "#ffffff" }}
+                  >
+                    <CheckCircle className="mr-1.5 size-4" />
+                    Approve
+                  </Button>
+                </form>
+              )}
+
+              {isSelectedAllApproved && (
+                <div className="mb-4 flex items-center gap-2 rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
+                  <CheckCircle className="size-4 shrink-0 text-emerald-600" />
+                  <span>Jadwal hari ini sudah disetujui (Approved)</span>
+                </div>
+              )}
+
               {selectedEvents.length > 0 ? (
                 <div className="space-y-3">
                   {selectedEvents.map((event) => (
@@ -322,8 +301,16 @@ export function AbsenCalendar({
                           <h3 className="text-sm font-medium">
                             {event.employee}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground flex items-center gap-2">
                             {event.role}
+                            <span className={[
+                              "px-1.5 py-0.5 rounded-sm text-[10px] font-semibold border",
+                              event.approvalStatus === "Approved" ? "bg-emerald-100 text-emerald-700 border-emerald-200" :
+                              event.approvalStatus === "Pending" ? "bg-amber-100 text-amber-700 border-amber-200" :
+                              "bg-gray-100 text-gray-700 border-gray-200"
+                            ].join(" ")}>
+                              {event.approvalStatus}
+                            </span>
                           </p>
                         </div>
                         <div className="flex items-center gap-1.5">
@@ -402,174 +389,6 @@ export function AbsenCalendar({
           </aside>
         </div>
       </div>
-
-      {isDialogOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-xs"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setIsDialogOpen(false)
-            }
-          }}
-        >
-          <div
-            className="relative flex max-h-[90vh] w-full max-w-md flex-col border bg-background shadow-lg"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="add-schedule-title"
-            aria-describedby="add-schedule-description"
-          >
-          <div className="border-b p-4 pr-12">
-            <h2 id="add-schedule-title" className="text-base font-semibold">
-              Add Schedule
-            </h2>
-            <p
-              id="add-schedule-description"
-              className="mt-1 text-xs text-muted-foreground"
-            >
-              Create a work schedule for the selected calendar date.
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="absolute right-3 top-3"
-            onClick={() => setIsDialogOpen(false)}
-          >
-            <X />
-            <span className="sr-only">Close</span>
-          </Button>
-
-          <form
-            key={selectedDate}
-            action={async (formData) => {
-              await createSchedule(formData)
-              setIsDialogOpen(false)
-            }}
-            className="flex flex-col gap-4 overflow-y-auto p-4"
-          >
-            <label className="flex flex-col gap-1.5 text-xs font-medium">
-              Tanggal
-              <Input
-                type="date"
-                name="tanggal"
-                defaultValue={selectedDate}
-                required
-              />
-            </label>
-
-            <label className="flex flex-col gap-1.5 text-xs font-medium">
-              Karyawan
-              <select
-                name="idKaryawan"
-                className="h-8 w-full border border-input bg-background px-2.5 py-1 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-                disabled={karyawan.length === 0}
-                required
-              >
-                <option value="">Select karyawan</option>
-                {karyawan.map((employee) => (
-                  <option key={employee.idKaryawan} value={employee.idKaryawan}>
-                    {employee.name} - {employee.roleName}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1.5 text-xs font-medium">
-              Shift
-              <select
-                name="shiftOption"
-                value={selectedShiftOption}
-                onChange={(event) => updateSelectedShift(event.target.value)}
-                className="h-8 w-full border border-input bg-background px-2.5 py-1 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-                required
-              >
-                {shiftTemplates.map((template) => (
-                  <option key={template.value} value={template.value}>
-                    {template.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="grid grid-cols-2 gap-2">
-              <label className="flex flex-col gap-1.5 text-xs font-medium">
-                Start Time
-                <Input
-                  type="time"
-                  name="startTime"
-                  value={startTime}
-                  onChange={(event) => setStartTime(event.target.value)}
-                  required={selectedTemplate?.label !== "Libur"}
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-xs font-medium">
-                End Time
-                <Input
-                  type="time"
-                  name="endTime"
-                  value={endTime}
-                  onChange={(event) => setEndTime(event.target.value)}
-                  required={selectedTemplate?.label !== "Libur"}
-                />
-              </label>
-            </div>
-
-            <label className="flex flex-col gap-1.5 text-xs font-medium">
-              Status Kehadiran
-              <select
-                name="statusKehadiran"
-                defaultValue="Belum Hadir"
-                className="h-8 w-full border border-input bg-background px-2.5 py-1 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-                required
-              >
-                {attendanceStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-1.5 text-xs font-medium">
-              Catatan
-              <textarea
-                name="catatan"
-                rows={4}
-                className="w-full resize-none border border-input bg-background px-2.5 py-2 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
-                placeholder="Optional note"
-              />
-            </label>
-
-            {!canCreateSchedule ? (
-              <p className="border border-amber-200 bg-amber-50 px-2.5 py-2 text-xs text-amber-700">
-                Add at least one active karyawan before creating a schedule.
-              </p>
-            ) : null}
-
-            <div className="flex gap-2 border-t pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={!canCreateSchedule}
-              >
-                Save Schedule
-              </Button>
-            </div>
-          </form>
-          </div>
-        </div>
-      ) : null}
     </>
   )
 }

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation"
 import {
   Coffee,
   CalendarCheck,
+  CalendarDots,
   ClipboardText,
   File,
   GearSix,
@@ -45,6 +46,11 @@ const navigationItems = [
     title: "Absen",
     url: "/admin/absen",
     icon: CalendarCheck,
+  },
+  {
+    title: "Scheduled Absen",
+    url: "/admin/scheduled-absen",
+    icon: CalendarDots,
   },
   {
     title: "Member",
