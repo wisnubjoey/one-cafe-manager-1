@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEDGER — Personal Finance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #000;
+            --paper: #fff;
+            --gray-1: #fafafa;
+            --gray-2: #f4f4f4;
+            --gray-3: #ededed;
+            --gray-4: #e0e0e0;
+            --gray-line: #00000014;
+            --gray-line-strong: #00000022;
+            --gray-text: #6b6b6b;
+            --gray-text-2: #9a9a9a;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        body {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-feature-settings: "ss01", "cv11";
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        .font-display {
+            font-family: 'Archivo', sans-serif;
+            letter-spacing: -0.04em;
+        }
+
+        .tnum {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+
+        /* Greeting hero — bold type centerpiece */
+        .hero-num {
+            font-family: 'Archivo', sans-serif;
+            font-weight: 900;
+            letter-spacing: -0.055em;
+            line-height: 0.9;
+        }
+
+        /* Animated bar chart bars */
+        .bar {
+            transform-origin: bottom;
+            animation: grow 0.9s cubic-bezier(.2, .8, .2, 1) both;
+        }
+
+        @keyframes grow {
+            from {
+                transform: scaleY(0);
+                opacity: 0
+            }
+
+            to {
+                transform: scaleY(1);
+                opacity: 1
+            }
+        }
+
+        /* Card hover */
+        .card {
+            transition: border-color .2s ease, transform .2s ease;
+        }
+
+        .card:hover {
+            border-color: #000;
+        }
+
+        /* Live pulsing dot */
+        .live-dot {
+            position: relative;
+        }
+
+        .live-dot::before {
+            content: "";
+            position: absolute;
+            inset: -4px;
+            border-radius: 9999px;
+            background: #000;
+            opacity: .18;
+            animation: pulse 1.8s ease-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(.7);
+                opacity: .25
+            }
+
+            100% {
+                transform: scale(2.2);
+                opacity: 0
+            }
+        }
+
+        /* Toggle pill */
+        .seg {
+            position: relative;
+            display: inline-flex;
+            padding: 3px;
+            background: #f1f1f1;
+            border-radius: 999px;
+        }
+
+        .seg button {
+            position: relative;
+            z-index: 1;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .02em;
+            color: #777;
+            transition: color .25s ease;
+            border-radius: 999px;
+        }
+
+        .seg button.on {
+            color: #000;
+        }
+
+        .seg .knob {
+            position: absolute;
+            z-index: 0;
+            top: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 999px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 0 0 1px rgba(0, 0, 0, .05);
+            transition: left .3s cubic-bezier(.2, .8, .2, 1), width .3s cubic-bezier(.2, .8, .2, 1);
+        }
+
+        /* Bottom nav active */
+        .nav-item {
+            color: #9a9a9a;
+            transition: color .2s ease;
+        }
+
+        .nav-item.on {
+            color: #000;
+        }
+
+        .nav-item.on .nav-dot {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .nav-dot {
+            opacity: 0;
+            transform: scale(0);
+            transition: all .25s ease;
+        }
+
+        /* Transaction row reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(8px);
+            animation: reveal .5s ease forwards;
+        }
+
+        @keyframes reveal {
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        /* Mini sparkline path draw */
+        .spark-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 1.6s cubic-bezier(.2, .8, .2, 1) forwards;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0
+            }
+        }
+
+        /* Press effect for buttons */
+        button:active,
+        a:active {
+            transform: scale(.98);
+        }
+
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none
+        }
+
+        /* Selection */
+        ::selection {
+            background: #000;
+            color: #fff;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 90px;
+            transform: translateX(-50%) translateY(20px);
+            background: #000;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: .02em;
+            opacity: 0;
+            pointer-events: none;
+            transition: all .3s ease;
+            z-index: 60;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Marquee for ticker */
+        .marquee {
+            display: flex;
+            gap: 48px;
+            animation: marq 30s linear infinite;
+        }
+
+        @keyframes marq {
+            from {
+                transform: translateX(0)
+            }
+
+            to {
+                transform: translateX(-50%)
+            }
+        }
+
+        /* Progress fill */
+        .fill {
+            transition: width 1.2s cubic-bezier(.2, .8, .2, 1);
+        }
+
+        @media (min-width: 768px) {
+            .hero-num {
+                letter-spacing: -0.06em;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Top marquee ticker -->
+    <div class="border-b border-black/10 bg-white overflow-hidden">
+        <div class="marquee py-2 text-[11px] font-bold tracking-widest uppercase text-black/60 whitespace-nowrap">
+            <span>S&amp;P 500 · 5,418.17 · +0.42%</span>
+            <span>USD/EUR · 0.9213 · -0.08%</span>
+            <span>BTC · $67,234 · +1.20%</span>
+            <span>Gold · $2,348 · +0.31%</span>
+            <span>NASDAQ · 17,192 · +0.55%</span>
+            <span>10Y Treasury · 4.27% · -0.02</span>
+            <!-- duplicate -->
+            <span>S&amp;P 500 · 5,418.17 · +0.42%</span>
+            <span>USD/EUR · 0.9213 · -0.08%</span>
+            <span>BTC · $67,234 · +1.20%</span>
+            <span>Gold · $2,348 · +0.31%</span>
+            <span>NASDAQ · 17,192 · +0.55%</span>
+            <span>10Y Treasury · 4.27% · -0.02</span>
+        </div>
+    </div>
+
+    <!-- App Shell -->
+    <div class="max-w-md mx-auto bg-white min-h-screen relative">
+
+        <!-- Header -->
+        <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-black/10">
+            <div class="flex items-center justify-between px-5 py-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-display font-black text-lg">
+                        L</div>
+                    <div class="leading-tight">
+                        <div class="text-[10px] uppercase tracking-[0.18em] text-black/50 font-bold">Welcome back</div>
+                        <div class="font-display font-extrabold text-[15px] tracking-tight">Alex Chen</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="relative w-10 h-10 rounded-full border border-black/15 flex items-center justify-center hover:bg-black hover:text-white transition"
+                        aria-label="Notifications">
+                        <i class="fa-regular fa-bell text-sm"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-black rounded-full ring-2 ring-white"></span>
+                    </button>
+                    <button
+                        class="w-10 h-10 rounded-full border border-black/15 flex items-center justify-center hover:bg-black hover:text-white transition"
+                        aria-label="Settings">
+                        <i class="fa-solid fa-sliders text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="px-5 pb-32">
+
+            <!-- Greeting + balance hero -->
+            <section class="pt-8 pb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="live-dot inline-block w-2 h-2 bg-black rounded-full"></span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-black/60">Total Balance · synced
+                        now</span>
+                </div>
+                <div class="flex items-end justify-between gap-4 mb-3">
+                    <div class="hero-num text-[64px] md:text-[80px] tnum">
+                        <span class="text-black/30 text-[40px] md:text-[48px] align-top relative -top-2">$</span><span
+                            id="balanceVal">48,250</span><span
+                            class="text-black/40 text-[40px] md:text-[48px]">.00</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mb-5">
+                    <span
+                        class="inline-flex items-center gap-1.5 bg-black text-white px-2.5 py-1 rounded-full text-xs font-bold">
+                        <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> +$2,340
+                    </span>
+                    <span class="text-xs font-bold text-black/60">+5.1% this month</span>
+                </div>
+                <!-- Action buttons -->
+                <div class="grid grid-cols-4 gap-2">
+                    <button data-action="Send"
+                        class="group flex flex-col items-center gap-1.5 py-3 rounded-2xl border border-black/15 hover:bg-black hover:text-white transition">
+                        <i class="fa-solid fa-arrow-up text-sm"></i>
+                        <span class="text-[11px] font-bold tracking-wide">Send</span>
+                    </button>
+                    <button data-action="Request"
+                        class="group flex flex-col items-center gap-1.5 py-3 rounded-2xl border border-black/15 hover:bg-black hover:text-white transition">
+                        <i class="fa-solid fa-arrow-down text-sm"></i>
+                        <span class="text-[11px] font-bold tracking-wide">Request</span>
+                    </button>
+                    <button data-action="Top Up"
+                        class="group flex flex-col items-center gap-1.5 py-3 rounded-2xl border border-black/15 hover:bg-black hover:text-white transition">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                        <span class="text-[11px] font-bold tracking-wide">Top Up</span>
+                    </button>
+                    <button data-action="More"
+                        class="group flex flex-col items-center gap-1.5 py-3 rounded-2xl border border-black/15 hover:bg-black hover:text-white transition">
+                        <i class="fa-solid fa-ellipsis text-sm"></i>
+                        <span class="text-[11px] font-bold tracking-wide">More</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Quick stats: Income / Expenses -->
+            <section class="grid grid-cols-2 gap-3 mb-6">
+                <div class="card border border-black/10 rounded-2xl p-4 bg-white">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] uppercase tracking-[0.16em] font-bold text-black/55">Income</span>
+                        <div class="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                        </div>
+                    </div>
+                    <div class="font-display font-extrabold text-[26px] tnum tracking-tight">$8,420</div>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[11px] font-bold">+12.4%</span>
+                        <span class="text-[11px] text-black/40 font-medium">vs last mo</span>
+                    </div>
+                </div>
+                <div class="card border border-black/10 rounded-2xl p-4 bg-black text-white">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[10px] uppercase tracking-[0.16em] font-bold text-white/55">Expenses</span>
+                        <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+                            <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                        </div>
+                    </div>
+                    <div class="font-display font-extrabold text-[26px] tnum tracking-tight">$3,180</div>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[11px] font-bold">-4.2%</span>
+                        <span class="text-[11px] text-white/50 font-medium">vs last mo</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Spending Chart -->
+            <section class="border border-black/10 rounded-2xl p-5 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/55 mb-1">Cash Flow
+                        </div>
+                        <div class="font-display font-extrabold text-xl tracking-tight">Weekly Overview</div>
+                    </div>
+                    <div class="seg" id="rangeSeg">
+                        <div class="knob" style="left:3px; width:50px"></div>
+                        <button class="on" data-range="1W">1W</button>
+                        <button data-range="1M">1M</button>
+                        <button data-range="3M">3M</button>
+                    </div>
+                </div>
+
+                <!-- Bar chart -->
+                <div class="relative h-44 mt-2">
+                    <!-- gridlines -->
+                    <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                        <div class="border-t border-dashed border-black/10"></div>
+                        <div class="border-t border-dashed border-black/10"></div>
+                        <div class="border-t border-dashed border-black/10"></div>
+                        <div class="border-t border-dashed border-black/10"></div>
+                        <div class="border-t border-black/15"></div>
+                    </div>
+                    <!-- bars -->
+                    <div id="bars" class="absolute inset-0 flex items-end justify-between gap-2 px-1">
+                        <!-- generated by JS -->
+                    </div>
+                </div>
+                <div id="labels"
+                    class="flex justify-between mt-3 px-1 text-[10px] font-bold text-black/50 tracking-wider"></div>
+
+                <!-- legend -->
+                <div class="flex items-center gap-5 mt-5 pt-4 border-t border-black/10">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 bg-black rounded-sm"></span>
+                        <span class="text-xs font-bold">Income</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 bg-black/15 rounded-sm border border-black/20"></span>
+                        <span class="text-xs font-bold">Expenses</span>
+                    </div>
+                    <div class="ml-auto text-xs font-bold text-black/60 tnum">Avg <span
+                            class="text-black">$1,640</span>/wk</div>
+                </div>
+            </section>
+
+            <!-- Budgets -->
+            <section class="mb-6">
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/55 mb-1">This Month
+                        </div>
+                        <div class="font-display font-extrabold text-xl tracking-tight">Budgets</div>
+                    </div>
+                    <button class="text-xs font-bold underline underline-offset-4 decoration-2">Manage</button>
+                </div>
+
+                <div class="space-y-3">
+                    <!-- Budget item: Shopping -->
+                    <div class="card border border-black/10 rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+                                    <i class="fa-solid fa-bag-shopping text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Shopping</div>
+                                    <div class="text-[11px] text-black/50 font-medium">62% used</div>
+                                </div>
+                            </div>
+                            <div class="text-right tnum">
+                                <div class="font-display font-extrabold text-sm">$1,240</div>
+                                <div class="text-[11px] text-black/40 font-medium">of $2,000</div>
+                            </div>
+                        </div>
+                        <div class="h-1.5 bg-black/8 rounded-full overflow-hidden">
+                            <div class="fill h-full bg-black rounded-full" style="width:0%" data-w="62"></div>
+                        </div>
+                    </div>
+
+                    <!-- Budget item: Food -->
+                    <div class="card border border-black/10 rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+                                    <i class="fa-solid fa-utensils text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Food &amp; Drinks</div>
+                                    <div class="text-[11px] text-black/50 font-medium">88% used</div>
+                                </div>
+                            </div>
+                            <div class="text-right tnum">
+                                <div class="font-display font-extrabold text-sm">$880</div>
+                                <div class="text-[11px] text-black/40 font-medium">of $1,000</div>
+                            </div>
+                        </div>
+                        <div class="h-1.5 bg-black/8 rounded-full overflow-hidden">
+                            <div class="fill h-full bg-black rounded-full" style="width:0%" data-w="88"></div>
+                        </div>
+                    </div>
+
+                    <!-- Budget item: Transport -->
+                    <div class="card border border-black/10 rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+                                    <i class="fa-solid fa-car text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Transport</div>
+                                    <div class="text-[11px] text-black/50 font-medium">45% used</div>
+                                </div>
+                            </div>
+                            <div class="text-right tnum">
+                                <div class="font-display font-extrabold text-sm">$360</div>
+                                <div class="text-[11px] text-black/40 font-medium">of $800</div>
+                            </div>
+                        </div>
+                        <div class="h-1.5 bg-black/8 rounded-full overflow-hidden">
+                            <div class="fill h-full bg-black rounded-full" style="width:0%" data-w="45"></div>
+                        </div>
+                    </div>
+
+                    <!-- Budget item: Entertainment -->
+                    <div class="card border border-black/10 rounded-2xl p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+                                    <i class="fa-solid fa-film text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Entertainment</div>
+                                    <div class="text-[11px] text-black/50 font-medium">23% used</div>
+                                </div>
+                            </div>
+                            <div class="text-right tnum">
+                                <div class="font-display font-extrabold text-sm">$115</div>
+                                <div class="text-[11px] text-black/40 font-medium">of $500</div>
+                            </div>
+                        </div>
+                        <div class="h-1.5 bg-black/8 rounded-full overflow-hidden">
+                            <div class="fill h-full bg-black rounded-full" style="width:0%" data-w="23"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Savings Goal -->
+            <section class="mb-6">
+                <div class="border border-black/10 rounded-2xl p-5 bg-white">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/55 mb-1">Savings
+                                Goal</div>
+                            <div class="font-display font-extrabold text-xl tracking-tight">Emergency Fund</div>
+                            <div class="text-xs text-black/50 font-medium mt-1">Target by Dec 2024</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-display font-black text-2xl tnum">67<span class="text-black/40">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Big progress -->
+                    <div class="relative h-3 bg-black/8 rounded-full overflow-hidden mb-4">
+                        <div class="fill h-full bg-black rounded-full" style="width:0%" data-w="67"></div>
+                    </div>
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-wider font-bold text-black/50">Saved</div>
+                            <div class="font-display font-extrabold text-lg tnum">$6,700</div>
+                        </div>
+                        <svg width="80" height="32" viewBox="0 0 80 32" class="overflow-visible">
+                            <path class="spark-path" d="M2,24 L12,20 L22,22 L32,14 L42,16 L52,8 L62,10 L72,4 L78,6"
+                                fill="none" stroke="black" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <circle cx="78" cy="6" r="3" fill="black" />
+                            <circle cx="78" cy="6" r="6" fill="black" opacity="0.15" />
+                        </svg>
+                        <div class="text-right">
+                            <div class="text-[10px] uppercase tracking-wider font-bold text-black/50">Target</div>
+                            <div class="font-display font-extrabold text-lg tnum text-black/50">$10,000</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Transactions -->
+            <section class="mb-6">
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/55 mb-1">Activity</div>
+                        <div class="font-display font-extrabold text-xl tracking-tight">Recent Transactions</div>
+                    </div>
+                    <button class="text-xs font-bold underline underline-offset-4 decoration-2">See all</button>
+                </div>
+
+                <div class="border border-black/10 rounded-2xl overflow-hidden">
+                    <!-- Today header -->
+                    <div class="px-4 py-2.5 bg-black/3 border-b border-black/10 flex items-center justify-between">
+                        <span class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/60">Today</span>
+                        <span class="text-[11px] font-bold text-black/50 tnum">-$28.40</span>
+                    </div>
+
+                    <div id="txList"></div>
+                </div>
+            </section>
+
+            <!-- Cards -->
+            <section class="mb-6">
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <div>
+                        <div class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/55 mb-1">Connected
+                        </div>
+                        <div class="font-display font-extrabold text-xl tracking-tight">Your Cards</div>
+                    </div>
+                    <button
+                        class="w-8 h-8 rounded-full border border-black/15 flex items-center justify-center hover:bg-black hover:text-white transition"
+                        aria-label="Add card">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="flex gap-3 overflow-x-auto no-scrollbar -mx-5 px-5 pb-1">
+                    <!-- Card 1 -->
+                    <div
+                        class="flex-shrink-0 w-[260px] aspect-[16/10] bg-black text-white rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 pointer-events-none">
+                            <div class="absolute -right-8 -top-8 w-40 h-40 border-2 border-white rounded-full"></div>
+                            <div class="absolute -right-12 -top-12 w-48 h-48 border-2 border-white rounded-full"></div>
+                        </div>
+                        <div class="flex items-start justify-between relative">
+                            <div>
+                                <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-white/60">Primary</div>
+                                <div class="font-display font-bold text-sm mt-0.5">Chase · Checking</div>
+                            </div>
+                            <div class="font-display font-black text-lg italic">VISA</div>
+                        </div>
+                        <div class="relative">
+                            <div class="font-display font-bold text-base tracking-[0.15em] tnum mb-2">•••• 4921</div>
+                            <div class="flex items-end justify-between">
+                                <div>
+                                    <div class="text-[9px] uppercase tracking-wider text-white/50 font-bold">Holder
+                                    </div>
+                                    <div class="text-xs font-bold">ALEX CHEN</div>
+                                </div>
+                                <div>
+                                    <div class="text-[9px] uppercase tracking-wider text-white/50 font-bold">Exp</div>
+                                    <div class="text-xs font-bold tnum">08/27</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div
+                        class="flex-shrink-0 w-[260px] aspect-[16/10] bg-white border-2 border-black rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-[0.07] pointer-events-none">
+                            <div class="absolute -left-8 -bottom-8 w-40 h-40 border-2 border-black rounded-full"></div>
+                        </div>
+                        <div class="flex items-start justify-between relative">
+                            <div>
+                                <div class="text-[9px] uppercase tracking-[0.2em] font-bold text-black/60">Savings</div>
+                                <div class="font-display font-bold text-sm mt-0.5">Marcus · High Yield</div>
+                            </div>
+                            <div class="font-display font-black text-lg">MC</div>
+                        </div>
+                        <div class="relative">
+                            <div class="font-display font-bold text-base tracking-[0.15em] tnum mb-2">•••• 8843</div>
+                            <div class="flex items-end justify-between">
+                                <div>
+                                    <div class="text-[9px] uppercase tracking-wider text-black/50 font-bold">Holder
+                                    </div>
+                                    <div class="text-xs font-bold">ALEX CHEN</div>
+                                </div>
+                                <div>
+                                    <div class="text-[9px] uppercase tracking-wider text-black/50 font-bold">APY</div>
+                                    <div class="text-xs font-bold tnum">4.40%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div
+                        class="flex-shrink-0 w-[260px] aspect-[16/10] bg-white border border-dashed border-black/30 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <div
+                            class="w-10 h-10 rounded-full border-2 border-black/20 flex items-center justify-center mb-2">
+                            <i class="fa-solid fa-plus text-sm"></i>
+                        </div>
+                        <div class="font-display font-bold text-sm">Add new card</div>
+                        <div class="text-[11px] text-black/50 font-medium mt-0.5">Credit or debit</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Insights -->
+            <section class="border border-black/10 rounded-2xl p-5 mb-6 bg-white">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="live-dot inline-block w-2 h-2 bg-black rounded-full"></span>
+                    <span class="text-[10px] uppercase tracking-[0.18em] font-bold text-black/55">AI Insight</span>
+                </div>
+                <div class="font-display font-extrabold text-lg tracking-tight leading-tight mb-2">
+                    You're spending 23% less on dining out compared to last month. Keep it up.
+                </div>
+                <p class="text-sm text-black/60 font-medium leading-relaxed mb-4">
+                    At this pace, you'll save an extra $340 by month-end — putting you $180 above your savings target.
+                </p>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="flex-1 bg-black text-white text-xs font-bold py-2.5 rounded-full hover:bg-black/85 transition">View
+                        full report</button>
+                    <button
+                        class="w-10 h-10 rounded-full border border-black/15 flex items-center justify-center hover:bg-black hover:text-white transition"
+                        aria-label="Dismiss">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom nav -->
+        <nav
+            class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-md border-t border-black/10 z-40">
+            <div class="grid grid-cols-5 px-2 py-2">
+                <button class="nav-item on flex flex-col items-center gap-1 py-1.5">
+                    <i class="fa-solid fa-house text-base"></i>
+                    <span class="text-[10px] font-bold">Home</span>
+                    <span class="nav-dot w-1 h-1 bg-black rounded-full"></span>
+                </button>
+                <button class="nav-item flex flex-col items-center gap-1 py-1.5">
+                    <i class="fa-solid fa-chart-pie text-base"></i>
+                    <span class="text-[10px] font-bold">Stats</span>
+                    <span class="nav-dot w-1 h-1 bg-black rounded-full"></span>
+                </button>
+                <button class="nav-item flex flex-col items-center gap-1 py-1.5">
+                    <div
+                        class="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center -mt-3 border-4 border-white">
+                        <i class="fa-solid fa-plus text-sm"></i>
+                    </div>
+                    <span class="text-[10px] font-bold">Add</span>
+                </button>
+                <button class="nav-item flex flex-col items-center gap-1 py-1.5">
+                    <i class="fa-regular fa-credit-card text-base"></i>
+                    <span class="text-[10px] font-bold">Cards</span>
+                    <span class="nav-dot w-1 h-1 bg-black rounded-full"></span>
+                </button>
+                <button class="nav-item flex flex-col items-center gap-1 py-1.5">
+                    <i class="fa-regular fa-user text-base"></i>
+                    <span class="text-[10px] font-bold">Profile</span>
+                    <span class="nav-dot w-1 h-1 bg-black rounded-full"></span>
+                </button>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        /* -------------------------
+           Data
+        ------------------------- */
+        const ranges = {
+            "1W": {
+                labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                income: [620, 480, 750, 920, 540, 380, 730],
+                expense: [310, 420, 280, 540, 380, 620, 430]
+            },
+            "1M": {
+                labels: ["W1", "W2", "W3", "W4"],
+                income: [1840, 2240, 1980, 2360],
+                expense: [1120, 1480, 980, 1320]
+            },
+            "3M": {
+                labels: ["Jul", "Aug", "Sep"],
+                income: [7820, 8120, 8420],
+                expense: [3480, 3260, 3180]
+            }
+        };
+
+        const transactions = [
+            { name: "Whole Foods Market", cat: "Groceries", icon: "fa-cart-shopping", time: "2:30 PM", amount: -87.40 },
+            { name: "Salary · Acme Corp", cat: "Income", icon: "fa-briefcase", time: "9:00 AM", amount: +5240.00, income: true },
+            { name: "Spotify Premium", cat: "Subscription", icon: "fa-music", time: "Yesterday", amount: -9.99 },
+            { name: "Shell Gas Station", cat: "Transport", icon: "fa-gas-pump", time: "Yesterday", amount: -52.00 },
+            { name: "Uber Eats", cat: "Food & Drinks", icon: "fa-utensils", time: "2 days ago", amount: -24.50 },
+            { name: "Freelance · Studio Co", cat: "Income", icon: "fa-briefcase", time: "3 days ago", amount: +1240.00, income: true },
+            { name: "Amazon", cat: "Shopping", icon: "fa-bag-shopping", time: "3 days ago", amount: -129.95 },
+            { name: "Netflix", cat: "Subscription", icon: "fa-film", time: "4 days ago", amount: -15.49 }
+        ];
+
+        /* -------------------------
+           Bar chart render
+        ------------------------- */
+        const barsEl = document.getElementById("bars");
+        const labelsEl = document.getElementById("labels");
+
+        function renderChart(key) {
+            const data = ranges[key];
+            const max = Math.max(...data.income, ...data.expense) * 1.1;
+            barsEl.innerHTML = "";
+            labelsEl.innerHTML = "";
+
+            data.labels.forEach((lbl, i) => {
+                const incH = (data.income[i] / max) * 100;
+                const expH = (data.expense[i] / max) * 100;
+
+                const group = document.createElement("div");
+                group.className = "flex-1 flex items-end justify-center gap-1 h-full";
+                group.innerHTML = `
+        <div class="bar w-1/2 max-w-[16px] bg-black rounded-t-[3px]" style="height:${incH}%; animation-delay:${i * 60}ms"></div>
+        <div class="bar w-1/2 max-w-[16px] bg-black/15 border border-black/20 rounded-t-[3px]" style="height:${expH}%; animation-delay:${i * 60 + 30}ms"></div>
+      `;
+                barsEl.appendChild(group);
+
+                const l = document.createElement("div");
+                l.className = "flex-1 text-center";
+                l.textContent = lbl;
+                labelsEl.appendChild(l);
+            });
+        }
+        renderChart("1W");
+
+        /* Segmented control */
+        const seg = document.getElementById("rangeSeg");
+        const knob = seg.querySelector(".knob");
+        seg.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                seg.querySelectorAll("button").forEach(b => b.classList.remove("on"));
+                btn.classList.add("on");
+                const r = btn.getBoundingClientRect();
+                const pr = seg.getBoundingClientRect();
+                knob.style.left = (r.left - pr.left) + "px";
+                knob.style.width = r.width + "px";
+                renderChart(btn.dataset.range);
+            });
+        });
+        // init knob position
+        window.addEventListener("load", () => {
+            const active = seg.querySelector("button.on");
+            const r = active.getBoundingClientRect();
+            const pr = seg.getBoundingClientRect();
+            knob.style.left = (r.left - pr.left) + "px";
+            knob.style.width = r.width + "px";
+        });
+
+        /* -------------------------
+           Transactions render
+        ------------------------- */
+        const txList = document.getElementById("txList");
+        function renderTx() {
+            txList.innerHTML = "";
+            transactions.forEach((t, i) => {
+                const row = document.createElement("div");
+                row.className = "reveal flex items-center gap-3 px-4 py-3 border-b border-black/8 last:border-b-0 hover:bg-black/3 transition cursor-pointer";
+                row.style.animationDelay = (i * 50) + "ms";
+                const sign = t.amount > 0 ? "+" : "-";
+                const amt = Math.abs(t.amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                row.innerHTML = `
+        <div class="w-10 h-10 rounded-xl ${t.income ? 'bg-black text-white' : 'bg-black/5 text-black'} flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid ${t.icon} text-xs"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-sm truncate">${t.name}</div>
+          <div class="text-[11px] text-black/50 font-medium">${t.cat} · ${t.time}</div>
+        </div>
+        <div class="text-right tnum flex-shrink-0">
+          <div class="font-display font-extrabold text-sm ${t.income ? 'text-black' : 'text-black'}">${sign}$${amt}</div>
+        </div>
+      `;
+                row.addEventListener("click", () => showToast("Transaction details coming soon"));
+                txList.appendChild(row);
+            });
+        }
+        renderTx();
+
+        /* -------------------------
+           Progress fills (animate on mount)
+        ------------------------- */
+        window.addEventListener("load", () => {
+            setTimeout(() => {
+                document.querySelectorAll(".fill").forEach(el => {
+                    el.style.width = el.dataset.w + "%";
+                });
+            }, 200);
+        });
+
+        /* -------------------------
+           Action buttons toast
+        ------------------------- */
+        const toast = document.getElementById("toast");
+        let toastTimer;
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+        }
+        document.querySelectorAll("[data-action]").forEach(btn => {
+            btn.addEventListener("click", () => showToast(btn.dataset.action + " — coming soon"));
+        });
+
+        /* -------------------------
+           Bottom nav
+        ------------------------- */
+        document.querySelectorAll(".nav-item").forEach(item => {
+            item.addEventListener("click", () => {
+                document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("on"));
+                item.classList.add("on");
+                const label = item.querySelector("span").textContent;
+                if (label !== "Home") showToast(label + " — coming soon");
+            });
+        });
+
+        /* -------------------------
+           Live balance micro-counter
+        ------------------------- */
+        let bal = 48250;
+        setInterval(() => {
+            // tiny flicker: simulate live updates
+            const delta = (Math.random() - 0.5) * 2;
+            bal += delta;
+            document.getElementById("balanceVal").textContent = bal.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }, 4000);
+
+    </script>
+</body>
+
+</html>
