@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm"
 import { db } from "@/db/client"
 import { purchaseInvoiceTable } from "@/db/schema"
-import { PurchaseInvoiceCalendar } from "@/components/purchase-invoice-calendar"
+import { ResponsiveWrapper } from "@/components/responsive-wrapper"
 
 export const dynamic = "force-dynamic"
 
@@ -33,5 +33,5 @@ export default async function MemberPurchaseInvoicePage() {
     description: item.description,
   }))
 
-  return <PurchaseInvoiceCalendar events={events} />
+  return <ResponsiveWrapper />
 }
