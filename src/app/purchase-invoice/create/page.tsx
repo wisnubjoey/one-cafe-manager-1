@@ -1,4 +1,4 @@
-import { PurchaseInvoiceForm } from "@/components/purchase-invoice-form"
+import { PurchaseInvoiceForm } from "@/components/PurchaseInvoice/purchase-invoice-form"
 
 export default function MemberPurchaseInvoiceCreatePage() {
   return <PurchaseInvoiceForm />
