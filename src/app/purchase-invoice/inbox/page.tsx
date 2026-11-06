@@ -19,7 +19,6 @@ export default async function PurchaseInvoiceInboxPage() {
   const invoices = await db
     .select({
       id: purchaseInvoiceTable.id,
-      invoiceDate: purchaseInvoiceTable.invoiceDate,
       title: purchaseInvoiceTable.title,
       description: purchaseInvoiceTable.description,
       createdAt: purchaseInvoiceTable.createdAt,
@@ -29,7 +28,7 @@ export default async function PurchaseInvoiceInboxPage() {
 
   const formattedInvoices = invoices.map((item) => ({
     id: item.id,
-    invoiceDate: formatDbDate(item.invoiceDate),
+    invoiceDate: item.createdAt ? formatDbDate(item.createdAt) : "-",
     title: item.title,
     description: item.description,
     createdAt: item.createdAt ? item.createdAt.toISOString() : undefined,

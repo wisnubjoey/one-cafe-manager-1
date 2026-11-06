@@ -1,4 +1,4 @@
-import { asc } from "drizzle-orm"
+import { desc } from "drizzle-orm"
 import { db } from "@/db/client"
 import { purchaseInvoiceTable } from "@/db/schema"
 import { ResponsiveWrapper } from "@/components/PurchaseInvoice/responsive-wrapper"
@@ -19,16 +19,16 @@ export default async function MemberPurchaseInvoicePage() {
   const invoices = await db
     .select({
       id: purchaseInvoiceTable.id,
-      invoiceDate: purchaseInvoiceTable.invoiceDate,
       title: purchaseInvoiceTable.title,
       description: purchaseInvoiceTable.description,
+      createdAt: purchaseInvoiceTable.createdAt,
     })
     .from(purchaseInvoiceTable)
-    .orderBy(asc(purchaseInvoiceTable.invoiceDate))
+    .orderBy(desc(purchaseInvoiceTable.createdAt))
 
   const events = invoices.map((item) => ({
     id: item.id,
-    date: formatDbDate(item.invoiceDate),
+    date: item.createdAt ? formatDbDate(item.createdAt) : "",
     title: item.title,
     description: item.description,
   }))
