@@ -13,7 +13,7 @@ type ActivityItem = {
 export function MobileView() {
     const [activeSheet, setActiveSheet] = useState<'camera' | 'voice' | 'note' | null>(null);
     const [toastMessage, setToastMessage] = useState<string | null>(null);
-    
+
     // camera state
     const videoRef = useRef<HTMLVideoElement>(null);
     const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
@@ -24,7 +24,7 @@ export function MobileView() {
     const [isRecording, setIsRecording] = useState(false);
     const [recSeconds, setRecSeconds] = useState(0);
     const [transcript, setTranscript] = useState('');
-    
+
     const [recentItems, setRecentItems] = useState<ActivityItem[]>([
         {
             id: '1',
@@ -74,7 +74,7 @@ export function MobileView() {
             timer = setInterval(() => {
                 setRecSeconds(s => s + 1);
             }, 1000);
-            
+
             // simulate transcript
             let simIdx = 0;
             const text = "Need to follow up with the logistics vendor about the bulk shipping quote for next quarter. They mentioned a twelve hundred dollar base rate plus fuel surcharge.";
@@ -192,7 +192,7 @@ export function MobileView() {
         const vendor = fd.get('vendor') as string;
         const amount = fd.get('amount') as string;
         const category = fd.get('category') as string;
-        
+
         let formattedAmt = 'Pending';
         if (amount) {
             const n = parseFloat(amount.replace(/[^0-9.]/g, ''));
@@ -216,26 +216,26 @@ export function MobileView() {
         if (type === 'photo') return (
             <div className={markClass}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="square">
-                    <path className="icon-stroke" d="M3 8 L7 8 L9 5 L15 5 L17 8 L21 8 L21 20 L3 20 Z" stroke="currentColor"/>
-                    <circle className="icon-stroke" cx="12" cy="14" r="4" stroke="currentColor"/>
+                    <path className="icon-stroke" d="M3 8 L7 8 L9 5 L15 5 L17 8 L21 8 L21 20 L3 20 Z" stroke="currentColor" />
+                    <circle className="icon-stroke" cx="12" cy="14" r="4" stroke="currentColor" />
                 </svg>
             </div>
         );
         if (type === 'voice') return (
             <div className={markClass}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="square">
-                    <rect className="icon-fill" x="9" y="2" width="6" height="13" fill="currentColor" stroke="currentColor"/>
-                    <path className="icon-stroke" d="M5 11 C5 16 8 19 12 19 C16 19 19 16 19 11" stroke="currentColor" fill="none"/>
+                    <rect className="icon-fill" x="9" y="2" width="6" height="13" fill="currentColor" stroke="currentColor" />
+                    <path className="icon-stroke" d="M5 11 C5 16 8 19 12 19 C16 19 19 16 19 11" stroke="currentColor" fill="none" />
                 </svg>
             </div>
         );
         return (
             <div className={markClass}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="square">
-                    <path className="icon-stroke" d="M4 4 L20 4 L20 21 L4 21 Z" stroke="currentColor"/>
-                    <line className="icon-stroke" x1="8" y1="9" x2="16" y2="9" stroke="currentColor"/>
-                    <line className="icon-stroke" x1="8" y1="13" x2="16" y2="13" stroke="currentColor"/>
-                    <line className="icon-stroke" x1="8" y1="17" x2="13" y2="17" stroke="currentColor"/>
+                    <path className="icon-stroke" d="M4 4 L20 4 L20 21 L4 21 Z" stroke="currentColor" />
+                    <line className="icon-stroke" x1="8" y1="9" x2="16" y2="9" stroke="currentColor" />
+                    <line className="icon-stroke" x1="8" y1="13" x2="16" y2="13" stroke="currentColor" />
+                    <line className="icon-stroke" x1="8" y1="17" x2="13" y2="17" stroke="currentColor" />
                 </svg>
             </div>
         );
@@ -243,7 +243,8 @@ export function MobileView() {
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{__html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
         * {
             box-sizing: border-box;
             margin: 0;
@@ -271,7 +272,6 @@ export function MobileView() {
         }
 
         .app {
-            max-width: 480px;
             margin: 0 auto;
             min-height: 100vh;
             background: var(--surface);
@@ -1020,9 +1020,9 @@ export function MobileView() {
                     <button className="action-tile primary" onClick={() => setActiveSheet('camera')}>
                         <span className="tile-icon">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
-                                <path className="icon-stroke" d="M3 8 L7 8 L9 5 L15 5 L17 8 L21 8 L21 20 L3 20 Z" stroke="currentColor"/>
-                                <circle className="icon-stroke" cx="12" cy="14" r="4" stroke="currentColor"/>
-                                <path className="icon-stroke" d="M16 11 L18 9" stroke="currentColor"/>
+                                <path className="icon-stroke" d="M3 8 L7 8 L9 5 L15 5 L17 8 L21 8 L21 20 L3 20 Z" stroke="currentColor" />
+                                <circle className="icon-stroke" cx="12" cy="14" r="4" stroke="currentColor" />
+                                <path className="icon-stroke" d="M16 11 L18 9" stroke="currentColor" />
                             </svg>
                         </span>
                         <span className="tile-main">
@@ -1035,9 +1035,9 @@ export function MobileView() {
                     <button className="action-tile" onClick={() => setActiveSheet('voice')}>
                         <span className="tile-icon">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
-                                <rect className="icon-fill" x="9" y="2" width="6" height="13" fill="currentColor" stroke="currentColor"/>
-                                <path className="icon-stroke" d="M5 11 C5 16 8 19 12 19 C16 19 19 16 19 11" stroke="currentColor" fill="none"/>
-                                <line className="icon-stroke" x1="12" y1="19" x2="12" y2="22" stroke="currentColor"/>
+                                <rect className="icon-fill" x="9" y="2" width="6" height="13" fill="currentColor" stroke="currentColor" />
+                                <path className="icon-stroke" d="M5 11 C5 16 8 19 12 19 C16 19 19 16 19 11" stroke="currentColor" fill="none" />
+                                <line className="icon-stroke" x1="12" y1="19" x2="12" y2="22" stroke="currentColor" />
                             </svg>
                         </span>
                         <span className="tile-main">
@@ -1050,10 +1050,10 @@ export function MobileView() {
                     <button className="action-tile" onClick={() => setActiveSheet('note')}>
                         <span className="tile-icon">
                             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
-                                <path className="icon-stroke" d="M4 4 L20 4 L20 21 L4 21 Z" stroke="currentColor"/>
-                                <line className="icon-stroke" x1="8" y1="9" x2="16" y2="9" stroke="currentColor"/>
-                                <line className="icon-stroke" x1="8" y1="13" x2="16" y2="13" stroke="currentColor"/>
-                                <line className="icon-stroke" x1="8" y1="17" x2="13" y2="17" stroke="currentColor"/>
+                                <path className="icon-stroke" d="M4 4 L20 4 L20 21 L4 21 Z" stroke="currentColor" />
+                                <line className="icon-stroke" x1="8" y1="9" x2="16" y2="9" stroke="currentColor" />
+                                <line className="icon-stroke" x1="8" y1="13" x2="16" y2="13" stroke="currentColor" />
+                                <line className="icon-stroke" x1="8" y1="17" x2="13" y2="17" stroke="currentColor" />
                             </svg>
                         </span>
                         <span className="tile-main">
@@ -1097,8 +1097,8 @@ export function MobileView() {
                     {!cameraStream && !capturedImage && (
                         <div className="cam-placeholder">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="square">
-                                <path d="M3 8 L7 8 L9 5 L15 5 L17 8 L21 8 L21 20 L3 20 Z"/>
-                                <circle cx="12" cy="14" r="4"/>
+                                <path d="M3 8 L7 8 L9 5 L15 5 L17 8 L21 8 L21 20 L3 20 Z" />
+                                <circle cx="12" cy="14" r="4" />
                             </svg>
                             <div className="ph-title">Camera ready</div>
                             <div className="ph-sub">Press start to activate</div>

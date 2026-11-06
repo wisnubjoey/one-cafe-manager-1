@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm"
 import { db } from "@/db/client"
 import { purchaseInvoiceTable } from "@/db/schema"
-import { ResponsiveWrapper } from "@/components/responsive-wrapper"
+import { ResponsiveWrapper } from "@/components/PurchaseInvoice/responsive-wrapper"
 
 export const dynamic = "force-dynamic"
 
