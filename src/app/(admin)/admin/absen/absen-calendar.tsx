@@ -40,7 +40,7 @@ export type KaryawanOption = {
 
 type AbsenCalendarProps = {
   events: CalendarEvent[]
-  karyawan: KaryawanOption[]
+  karyawan?: KaryawanOption[]
 }
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -86,7 +86,6 @@ function getStatusClass(status: AttendanceStatus) {
 
 export function AbsenCalendar({
   events,
-  karyawan,
 }: AbsenCalendarProps) {
   const today = useMemo(() => new Date(), [])
   const [visibleMonth, setVisibleMonth] = useState(
