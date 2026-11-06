@@ -2,12 +2,6 @@
 
 import OpenAI from "openai";
 
-// Inisialisasi OpenAI SDK dengan endpoint Gemini
-const openai = new OpenAI({
-    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-    apiKey: process.env.GEMINI_API_KEY,
-});
-
 export type ButtonUpdate = {
     buttonId: number;
     targetState: boolean;
@@ -29,6 +23,11 @@ export async function processCommand(prompt: string): Promise<ProcessCommandResu
             responseText: "Error: GEMINI_API_KEY belum ditemukan di environment variable. Silakan tambahkan GEMINI_API_KEY ke file .env Anda."
         };
     }
+
+    const openai = new OpenAI({
+        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+        apiKey: process.env.GEMINI_API_KEY,
+    });
 
     try {
         const response = await openai.chat.completions.create({
