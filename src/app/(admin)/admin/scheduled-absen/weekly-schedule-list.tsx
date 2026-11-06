@@ -41,7 +41,7 @@ export function WeeklyScheduleList({
         <h3 className="text-lg font-medium">Belum ada jadwal</h3>
         <p className="mt-1 max-w-sm text-sm text-muted-foreground">
           Anda belum membuat jadwal absensi (scheduled absen). Silakan klik
-          tombol "Create scheduled absen" untuk mulai membuat jadwal.
+          tombol &quot;Create scheduled absen&quot; untuk mulai membuat jadwal.
         </p>
       </div>
     )

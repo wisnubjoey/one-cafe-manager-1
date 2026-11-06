@@ -136,7 +136,7 @@ export function MobileView() {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 setCameraStream(stream);
                 if (videoRef.current) videoRef.current.srcObject = stream;
-            } catch (err) {
+            } catch {
                 // Ignore error for demo
             }
         }
@@ -1065,7 +1065,7 @@ export function MobileView() {
                 </section>
 
                 <div className="section-label">
-                    <span>Today's activity</span>
+                    <span>Today&apos;s activity</span>
                     <span className="count">{String(recentItems.length).padStart(2, '0')} items</span>
                 </div>
                 <section className="recent" aria-label="Recent activity">
