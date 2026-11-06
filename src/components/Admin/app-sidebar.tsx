@@ -4,12 +4,16 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
   Coffee,
+  CalendarCheck,
+  CalendarDots,
+  ClipboardText,
   File,
-  Gauge,
   GearSix,
   House,
+  Receipt,
   SignOut,
   SquaresFour,
+  Users,
 } from "@phosphor-icons/react"
 
 import { authClient } from "@/lib/auth-client"
@@ -22,6 +26,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
@@ -34,9 +39,39 @@ const navigationItems = [
     icon: House,
   },
   {
+    title: "Menu",
+    url: "/admin/menu",
+    icon: ClipboardText,
+    isClosed: true,
+  },
+  {
+    title: "Absen",
+    url: "/admin/absen",
+    icon: CalendarCheck,
+    isClosed: true,
+  },
+  {
+    title: "Scheduled Absen",
+    url: "/admin/scheduled-absen",
+    icon: CalendarDots,
+    isClosed: true,
+  },
+  {
+    title: "Member",
+    url: "/admin/member",
+    icon: Users,
+    isClosed: true,
+  },
+  {
+    title: "Purchase Invoice",
+    url: "/admin/purchase-invoice",
+    icon: Receipt,
+  },
+  {
     title: "Settings",
     url: "/admin/settings",
     icon: GearSix,
+    isClosed: true,
   },
   {
     title: "Blank",
@@ -96,7 +131,21 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                      <SidebarMenuItem
+                        key={item.title}
+                        className={item.isClosed ? "cursor-not-allowed" : undefined}
+                      >
+                        {item.isClosed ? (
+                          <SidebarMenuButton
+                            disabled
+                            aria-disabled="true"
+                            className="cursor-not-allowed opacity-60 pr-14"
+                            tooltip={`${item.title} (Closed)`}
+                          >
+                            <item.icon />
+                            <span>{item.title}</span>
+                  </SidebarMenuButton>
+                  ) : (
                   <SidebarMenuButton
                     asChild
                     isActive={isActivePath(pathname, item.url)}
@@ -107,6 +156,12 @@ export function AppSidebar() {
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
+                  )}
+                  {item.isClosed && (
+                    <SidebarMenuBadge className="text-muted-foreground text-[10px] tracking-wider uppercase font-semibold">
+                      Closed
+                    </SidebarMenuBadge>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

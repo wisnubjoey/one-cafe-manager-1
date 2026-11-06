@@ -8,6 +8,20 @@
       "when": 1774486869765,
       "tag": "0000_spooky_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780986154670,
+      "tag": "0001_blue_firestar",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783312038968,
+      "tag": "0002_dapper_sinister_six",
+      "breakpoints": true
     }
   ]
 }
