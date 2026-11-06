@@ -8,7 +8,6 @@ import {
   CaretRight,
   Plus,
   Trash,
-  PencilSimple,
   Receipt,
 } from "@phosphor-icons/react"
 

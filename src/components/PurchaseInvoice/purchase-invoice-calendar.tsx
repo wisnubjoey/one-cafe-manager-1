@@ -7,13 +7,10 @@ import {
   CaretLeft,
   CaretRight,
   Plus,
-  Trash,
-  PencilSimple,
   Receipt,
 } from "@phosphor-icons/react"
 
 import { Button } from "@/components/ui/button"
-import { deletePurchaseInvoice } from "@/app/(admin)/admin/purchase-invoice/actions"
 
 export type PurchaseInvoiceEvent = {
   id: string

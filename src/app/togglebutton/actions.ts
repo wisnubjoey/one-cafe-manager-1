@@ -142,12 +142,13 @@ export async function processCommand(prompt: string): Promise<ProcessCommandResu
             responseText: fallbackText || "AI tidak mengenali perintah untuk tombol.",
             error: "AI tidak mengenali perintah untuk tombol."
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("ProcessCommand error:", error);
+        const errorMessage = error instanceof Error ? error.message : "Terjadi kesalahan pada server.";
         return {
             success: false,
-            error: error?.message || "Terjadi kesalahan pada server.",
-            responseText: `Terjadi error: ${error?.message || "Kesalahan pada server."}`
+            error: errorMessage,
+            responseText: `Terjadi error: ${errorMessage}`
         };
     }
 }
